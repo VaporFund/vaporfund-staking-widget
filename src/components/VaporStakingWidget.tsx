@@ -32,6 +32,8 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
 
   // State
   const [amount, setAmount] = useState('');
+  const [targetAPY, setTargetAPY] = useState(0);
+  const [stakingDays, setStakingDays] = useState<number | null>(null);
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [selectedStrategy, setSelectedStrategy] = useState<string>('');
   const [balance, setBalance] = useState('0');
@@ -39,11 +41,14 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [completedTransaction, setCompletedTransaction] = useState<Transaction | null>(null);
   const [estimatedGas, setEstimatedGas] = useState('0.001');
+  const [isAboutExpanded, setIsAboutExpanded] = useState(true);
+
+  const maxAPY = 20; // Cap at 20% - matching frontend
 
   // API Client
   const [apiClient] = useState(() => new ApiClient(apiKey));
 
-  // Load strategies on mount
+  // Load strategies on mount (optional - for future use)
   useEffect(() => {
     async function loadStrategies() {
       try {
@@ -58,7 +63,7 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
         }
       } catch (err: any) {
         console.error('Failed to load strategies:', err);
-        setError('Failed to load staking strategies');
+        // Don't show error to user since strategies are not currently used in the UI
       }
     }
 
@@ -77,20 +82,80 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
     }
   }, [wallet.isConnected, wallet.address, staking, defaultToken]);
 
+  // Calculate minimum lock days based on APY
+  const getMinimumLockDays = (apy: number): number => {
+    if (apy >= 30) return 365;  // 1 year for extreme APY (30%+)
+    if (apy >= 25) return 180;  // 6 months for very high APY (25-30%)
+    if (apy >= 20) return 90;   // 3 months for high APY (20-25%)
+    if (apy >= 15) return 30;   // 1 month for medium-high APY (15-20%)
+    if (apy >= 10) return 14;   // 2 weeks for medium APY (10-15%)
+    if (apy >= 8) return 7;     // 1 week for low-medium APY (8-10%)
+    return 1; // 1 day minimum for low APY (< 8%)
+  };
+
+  const minimumLockDays = getMinimumLockDays(targetAPY);
+
+  // Auto-fill staking days when APY changes
+  useEffect(() => {
+    if (targetAPY > 0) {
+      setStakingDays(minimumLockDays);
+    } else {
+      setStakingDays(null);
+    }
+  }, [targetAPY, minimumLockDays]);
+
+  const calculateEarnings = () => {
+    if (!amount || !stakingDays) return 0;
+    return (parseFloat(amount) * targetAPY * stakingDays) / (365 * 100);
+  };
+
   // Handlers
   const handleAmountChange = (value: string) => {
-    setAmount(value);
+    const regex = /^\d*\.?\d*$/;
+    if (regex.test(value) || value === '') {
+      if (value !== '' && parseFloat(value) > 10000) {
+        setAmount('10000');
+        return;
+      }
+      setAmount(value);
+    }
     setError(null);
   };
 
   const handleMaxClick = () => {
-    setAmount(balance);
+    const maxValue = parseFloat(balance) > 10000 ? '10000' : balance;
+    setAmount(maxValue);
     setError(null);
   };
 
   const handleStakeClick = () => {
     if (!amount || parseFloat(amount) === 0) {
       setError('Please enter an amount');
+      return;
+    }
+
+    if (parseFloat(amount) < 101) {
+      setError('Minimum deposit is 101 ' + defaultToken);
+      return;
+    }
+
+    if (parseFloat(amount) > 10000) {
+      setError('Maximum deposit is 10,000 ' + defaultToken);
+      return;
+    }
+
+    if (!targetAPY || targetAPY <= 0) {
+      setError('Please enter target APY');
+      return;
+    }
+
+    if (!stakingDays) {
+      setError('Please enter staking period');
+      return;
+    }
+
+    if (stakingDays < minimumLockDays) {
+      setError(`Minimum staking period is ${minimumLockDays} days for ${targetAPY}% APY`);
       return;
     }
 
@@ -132,22 +197,47 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
           />
         </div>
 
-        {/* About Vapor Staking */}
-        <div className="mb-6 p-4 bg-vapor-background-secondary rounded-lg border border-vapor-primary/20">
-          <div className="flex items-start justify-between mb-2">
+        {/* About Vapor Staking - Collapsible */}
+        <div className="mb-6 rounded-lg border border-vapor-primary/20 bg-vapor-background-secondary overflow-hidden">
+          <button
+            onClick={() => setIsAboutExpanded(!isAboutExpanded)}
+            className="w-full p-4 flex items-center justify-between hover:bg-vapor-primary/5 transition-colors"
+          >
             <h2 className="text-lg font-semibold text-vapor-text">About Vapor Staking</h2>
-            <a
-              href="https://staking.vaporfund.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-vapor-primary hover:underline font-medium"
-            >
-              Visit Platform →
-            </a>
-          </div>
-          <p className="text-sm text-vapor-text-secondary leading-relaxed">
-            Stake your tokens securely with VaporFund's decentralized platform. All deposits are automatically routed to a multi-signature wallet, ensuring maximum security for your assets. Choose from multiple strategies to optimize your staking rewards.
-          </p>
+            <div className="flex items-center gap-2">
+              <a
+                href="https://staking.vaporfund.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-vapor-primary hover:underline font-medium"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Visit Platform →
+              </a>
+              <svg
+                className={`w-5 h-5 text-vapor-text transition-transform ${
+                  isAboutExpanded ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </button>
+          {isAboutExpanded && (
+            <div className="px-4 pb-4">
+              <p className="text-sm text-vapor-text-secondary leading-relaxed">
+                Stake your tokens securely with VaporFund's decentralized platform. All deposits are automatically routed to a multi-signature wallet, ensuring maximum security for your assets. Choose from multiple strategies to optimize your staking rewards.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Wallet Not Connected State */}
@@ -178,21 +268,145 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
         {/* Staking Form */}
         {wallet.isConnected && (
           <div className="space-y-6">
-            <TokenInput
-              value={amount}
-              balance={balance}
-              tokenSymbol={defaultToken}
-              error={error || undefined}
-              onChange={handleAmountChange}
-              onMaxClick={handleMaxClick}
-            />
+            {/* Amount Input */}
+            <div>
+              <label className="block text-sm font-medium text-vapor-text mb-2">
+                Amount to Stake
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={amount}
+                  onChange={(e) => handleAmountChange(e.target.value)}
+                  placeholder="0.0"
+                  className="w-full text-2xl font-bold text-center py-4 border-2 border-vapor-primary/20 rounded-xl focus:outline-none focus:border-vapor-primary bg-vapor-background text-vapor-text"
+                />
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl font-medium text-vapor-text-secondary">
+                  {defaultToken}
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <div className="text-sm text-vapor-text-secondary">
+                  Available: {parseFloat(balance).toFixed(2)} {defaultToken}
+                </div>
+                <button
+                  onClick={handleMaxClick}
+                  className="text-sm text-vapor-primary hover:underline font-medium"
+                >
+                  MAX
+                </button>
+              </div>
+              <div className="mt-2 text-center">
+                <p className="text-xs text-vapor-text-secondary">
+                  Minimum: 101 {defaultToken} • Maximum: 10,000 {defaultToken}
+                </p>
+              </div>
+            </div>
 
-            {strategies.length > 0 && (
-              <StrategySelector
-                strategies={strategies}
-                selected={selectedStrategy}
-                onChange={setSelectedStrategy}
-              />
+            {/* APY Input */}
+            <div>
+              <label className="block text-sm font-medium text-vapor-text mb-2">
+                Target APY (%)
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={targetAPY || ''}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (e.target.value === '') {
+                      setTargetAPY(0);
+                    } else if (isNaN(value) || value < 0) {
+                      setTargetAPY(0);
+                    } else if (value > maxAPY) {
+                      setTargetAPY(maxAPY);
+                    } else {
+                      setTargetAPY(value);
+                    }
+                  }}
+                  min="0"
+                  max={maxAPY}
+                  step="0.1"
+                  placeholder={`Enter APY (0-${maxAPY}%)`}
+                  className="w-full text-2xl font-bold text-center py-4 border-2 border-vapor-primary/20 rounded-xl focus:outline-none focus:border-vapor-primary bg-vapor-background text-vapor-text"
+                />
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl font-medium text-vapor-text-secondary">
+                  %
+                </div>
+              </div>
+              <div className="text-sm text-vapor-text-secondary mt-2 text-center">
+                Maximum APY: <span className="font-medium text-vapor-primary">{maxAPY}%</span>
+              </div>
+
+              {/* Lock Period Info based on APY */}
+              {targetAPY > 0 && minimumLockDays > 1 && (
+                <div className="mt-3 p-3 rounded-lg border border-vapor-primary/20 bg-vapor-background-secondary">
+                  <p className="text-sm text-vapor-text">
+                    <strong>Minimum Lock Period:</strong> {minimumLockDays} days
+                  </p>
+                  <p className="text-xs text-vapor-text-secondary mt-1">
+                    {targetAPY >= 20 ? 'High APY requires longer lock period' :
+                     targetAPY >= 10 ? 'Medium APY requires moderate lock period' :
+                     'Standard lock period applies'}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Staking Days Input */}
+            <div>
+              <label className="block text-sm font-medium text-vapor-text mb-2">
+                Staking Period (Days)
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={stakingDays === null ? '' : stakingDays}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    if (inputValue === '') {
+                      setStakingDays(null);
+                      return;
+                    }
+                    const value = parseInt(inputValue);
+                    if (!isNaN(value) && value >= minimumLockDays) {
+                      setStakingDays(value);
+                    }
+                  }}
+                  min={minimumLockDays}
+                  step="1"
+                  placeholder="Enter days"
+                  className="w-full text-2xl font-bold text-center py-4 border-2 border-vapor-primary/20 rounded-xl focus:outline-none focus:border-vapor-primary bg-vapor-background text-vapor-text"
+                />
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl font-medium text-vapor-text-secondary">
+                  days
+                </div>
+              </div>
+              <div className="text-sm text-vapor-text-secondary mt-2 text-center">
+                Minimum: {minimumLockDays} {minimumLockDays === 1 ? 'day' : 'days'}
+              </div>
+            </div>
+
+            {/* Earnings Preview */}
+            {amount && stakingDays && targetAPY > 0 && (
+              <div className="p-4 rounded-xl border border-vapor-primary/20 bg-gradient-to-r from-vapor-primary/10 to-vapor-primary/5">
+                <div className="text-center">
+                  <div className="text-sm text-vapor-text-secondary mb-1">Expected Earnings</div>
+                  <div className="text-2xl font-bold text-vapor-primary">
+                    +{calculateEarnings().toFixed(2)} {defaultToken}
+                  </div>
+                  <div className="text-xs text-vapor-text-secondary">
+                    At {targetAPY}% APY for {stakingDays} days
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
             )}
 
             <button
@@ -200,12 +414,17 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
               disabled={
                 !amount ||
                 parseFloat(amount) === 0 ||
+                parseFloat(amount) < 101 ||
+                parseFloat(amount) > 10000 ||
+                !targetAPY ||
+                !stakingDays ||
+                stakingDays < minimumLockDays ||
                 staking.isStaking ||
                 staking.isApproving
               }
               className="w-full vapor-button vapor-button-primary text-lg py-3"
             >
-              {staking.isApproving ? 'Approving...' : staking.isStaking ? 'Staking...' : 'Stake'}
+              {staking.isApproving ? 'Approving...' : staking.isStaking ? 'Staking...' : 'Start Staking'}
             </button>
           </div>
         )}
