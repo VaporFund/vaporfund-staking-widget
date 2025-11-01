@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VaporFund Staking Widget - Vanilla JS Example</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Stake Your USDC</h1>
+    <div id="vapor-staking"></div>
+  </div>
+
+  <!-- Load the VaporFund Widget from CDN -->
+  <script src="https://cdn.vaporfund.com/widget/v1.min.js"></script>
+
+  <script>
+    // Initialize the widget
+    VaporWidget.init({
+      container: '#vapor-staking',
+      apiKey: 'pk_live_xxxxx', // Replace with your API key
+      referralCode: 'partner_123', // Optional: your referral code
+      theme: 'auto',
+      defaultToken: 'USDC',
+      network: 'mainnet',
+      onSuccess: function(transaction) {
+        console.log('Stake successful!', transaction);
+        alert('Stake successful! TX: ' + transaction.hash);
+      },
+      onError: function(error) {
+        console.error('Staking failed:', error);
+        alert('Error: ' + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

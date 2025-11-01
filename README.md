@@ -78,15 +78,25 @@ function App() {
 
 ## Installation
 
+### Yarn (Recommended)
+
+```bash
+yarn add @vaporfund/staking-widget
+```
+
 ### NPM
 
 ```bash
 npm install @vaporfund/staking-widget
-# or
-yarn add @vaporfund/staking-widget
-# or
+```
+
+### PNPM
+
+```bash
 pnpm add @vaporfund/staking-widget
 ```
+
+> **Note:** This project uses Yarn as the default package manager for development.
 
 ### CDN
 
@@ -374,8 +384,15 @@ Email: security@vaporfund.com
 | iOS Safari | 14+ |
 | Chrome Android | Latest |
 
-**Bundle Size:** ~45KB (gzipped)
-**Dependencies:** React, ethers.js, RainbowKit
+**Bundle Size:** ~45KB (gzipped) - target
+**Dependencies:** React 18+, ethers.js v6, RainbowKit, wagmi, TanStack Query
+
+**Current Status:** MVP Development (Week 1 Complete)
+- ✅ Project setup and configuration
+- ✅ Component architecture
+- ✅ Hooks and utilities
+- 🔄 Backend API integration
+- ⏳ Testing and deployment
 
 ## Development
 
@@ -389,9 +406,15 @@ cd src/widget
 # Install dependencies
 yarn install
 
+# Set up environment variables
+cp .env.example .env
+# Edit .env and add your API key
+
 # Start development server
 yarn dev
 ```
+
+Visit http://localhost:5173 to see the widget in action!
 
 ### Commands
 
@@ -411,16 +434,33 @@ yarn coverage     # Test coverage report
 ```
 src/widget/
 ├── src/
-│   ├── components/      # React components
-│   ├── hooks/           # Custom hooks
-│   ├── lib/             # Core libraries
-│   ├── styles/          # CSS/styling
-│   └── index.ts         # Entry point
-├── examples/            # Integration examples
-├── tests/               # Test files
-├── docs/                # Documentation
+│   ├── components/          # React components
+│   │   ├── VaporStakingWidget.tsx
+│   │   ├── WalletConnect/
+│   │   ├── StakingForm/
+│   │   └── TransactionModal/
+│   ├── hooks/               # Custom hooks
+│   │   ├── useWallet.ts
+│   │   ├── useStaking.ts
+│   │   └── useTheme.ts
+│   ├── lib/                 # Core libraries
+│   │   ├── api/             # API client
+│   │   ├── web3/            # Web3 utilities
+│   │   └── utils/           # Helper functions
+│   ├── types/               # TypeScript types
+│   ├── constants/           # App constants
+│   ├── styles/              # Tailwind CSS
+│   └── index.ts             # Entry point
+├── examples/                # Integration examples
+│   ├── react/
+│   ├── nextjs/
+│   └── vanilla-js/
+├── tests/                   # Test files
 ├── package.json
-└── README.md
+├── README.md
+├── SRS.md                   # Requirements specification
+├── PROJECT_PLAN.md          # 8-week project plan
+└── SETUP.md                 # Developer setup guide
 ```
 
 ### Testing
@@ -477,11 +517,17 @@ chore(widget): maintenance tasks
 
 ### Phase 1 (MVP) - Current
 - [x] Basic widget structure
-- [ ] Wallet connection (WalletConnect, MetaMask)
-- [ ] USDC staking
-- [ ] Light/Dark themes
-- [ ] Referral tracking
-- [ ] Strategy selection
+- [x] React component architecture
+- [x] TypeScript configuration
+- [x] Tailwind CSS theming system
+- [x] Wallet connection (WalletConnect, MetaMask)
+- [x] USDC staking interface
+- [x] Light/Dark themes with customization
+- [x] Referral tracking hooks
+- [x] Strategy selection UI
+- [ ] Backend API integration (in progress)
+- [ ] Smart contract testing on testnet
+- [ ] Production deployment
 
 ### Phase 2 - Q1 2026
 - [ ] Multi-token support (USDT, DAI, ETH)
@@ -495,13 +541,25 @@ chore(widget): maintenance tasks
 - [ ] Portfolio tracking
 - [ ] Multi-language support
 
+## Documentation
+
+- **[Setup Guide](./SETUP.md)** - Developer setup and quick start
+- **[Project Plan](./PROJECT_PLAN.md)** - 8-week development roadmap
+- **[Requirements Specification](./SRS.md)** - Complete SRS document
+- **API Reference:** [staking-api.vaporfund.com/docs](https://staking-api.vaporfund.com/api/v1/docs)
+
 ## Support
 
 - **Documentation:** [docs.vaporfund.com/widget](https://docs.vaporfund.com/widget)
-- **API Reference:** [staking-api.vaporfund.com/docs](https://staking-api.vaporfund.com/api/v1/docs)
 - **Status Page:** [status.vaporfund.com](https://status.vaporfund.com)
-- **Discord:** [discord.gg/vaporfund](https://discord.gg/vaporfund)
 - **Email:** partners@vaporfund.com
+- **Issues:** [GitHub Issues](https://github.com/vaporfund/vaporfund-staking-platform/issues)
+
+## Community
+
+- **Discord:** [discord.com/invite/qWXfwMz4pP](https://discord.com/invite/qWXfwMz4pP)
+- **Twitter:** [twitter.com/vaporfund](https://twitter.com/vaporfund)
+- **Telegram:** [t.me/vaporfund_co](https://t.me/vaporfund_co)
 
 ## FAQ
 
@@ -531,3 +589,6 @@ See full [FAQ →](https://docs.vaporfund.com/widget/faq)
 **Ready to integrate?** [Get API Key →](https://partner.vaporfund.com/signup)
 
 **Questions?** [Contact Us →](mailto:partners@vaporfund.com)
+
+**Join the Community:**
+- [Discord](https://discord.com/invite/qWXfwMz4pP) • [Twitter](https://twitter.com/vaporfund) • [Telegram](https://t.me/vaporfund_co)
