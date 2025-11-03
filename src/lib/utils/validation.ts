@@ -10,6 +10,14 @@ export function validateStakeAmount(amount: string, balance: string): WidgetErro
   const min = parseFloat(STAKING_CONFIG.MIN_STAKE_AMOUNT);
   const max = parseFloat(STAKING_CONFIG.MAX_STAKE_AMOUNT);
 
+  // Debug logging
+  console.log('Validating stake amount:', {
+    amount: numAmount,
+    balance: numBalance,
+    min,
+    max,
+  });
+
   if (isNaN(numAmount) || numAmount <= 0) {
     return {
       code: ErrorCode.AMOUNT_TOO_LOW,
@@ -34,7 +42,7 @@ export function validateStakeAmount(amount: string, balance: string): WidgetErro
   if (numAmount > numBalance) {
     return {
       code: ErrorCode.INSUFFICIENT_BALANCE,
-      message: 'Insufficient balance',
+      message: `Insufficient balance. You have ${numBalance} but trying to stake ${numAmount}`,
     };
   }
 

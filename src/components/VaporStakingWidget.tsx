@@ -37,6 +37,7 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [selectedStrategy, setSelectedStrategy] = useState<string>('');
   const [balance, setBalance] = useState('0');
+  const [tokenAddress, setTokenAddress] = useState<string>(''); // Store current token address
   const [error, setError] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [completedTransaction, setCompletedTransaction] = useState<Transaction | null>(null);
@@ -72,15 +73,35 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
 
   // Load balance when wallet connects
   useEffect(() => {
-    if (wallet.isConnected && wallet.address) {
-      // TODO: Get token address from API based on defaultToken
-      const tokenAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC mainnet
-      staking
-        .getBalance(tokenAddress, wallet.address)
-        .then(setBalance)
-        .catch((err) => console.error('Failed to load balance:', err));
+    async function loadBalance() {
+      if (!wallet.isConnected || !wallet.address) return;
+
+      try {
+        // Get token addresses from API
+        const tokensData = await apiClient.getTokens();
+        const token = tokensData.tokens.find((t: any) => t.symbol === defaultToken);
+
+        if (!token) {
+          console.error('Token not found:', defaultToken);
+          return;
+        }
+
+        console.log('Loading balance for token:', { symbol: token.symbol, address: token.address });
+
+        // Store token address for later use
+        setTokenAddress(token.address);
+
+        const tokenBalance = await staking.getBalance(token.address, wallet.address);
+        setBalance(tokenBalance);
+        console.log('Balance loaded:', tokenBalance);
+      } catch (err) {
+        console.error('Failed to load balance:', err);
+        setBalance('0');
+      }
     }
-  }, [wallet.isConnected, wallet.address, staking, defaultToken]);
+
+    loadBalance();
+  }, [wallet.isConnected, wallet.address, staking, defaultToken, apiClient]);
 
   // Calculate minimum lock days based on APY
   const getMinimumLockDays = (apy: number): number => {
@@ -164,7 +185,14 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
 
   const handleConfirmStake = async () => {
     try {
-      const tokenAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC
+      if (!tokenAddress) {
+        setError('Token address not loaded');
+        setShowConfirmation(false);
+        return;
+      }
+
+      console.log('Staking with token address:', tokenAddress);
+
       const transaction = await staking.stake({
         tokenAddress,
         amount,
