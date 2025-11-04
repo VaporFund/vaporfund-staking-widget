@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VaporFund Widget - Auto-Initialize Example</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 40px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 30px;
+    }
+
+    .widget-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .widget-card h2 {
+      margin-top: 0;
+      color: #333;
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+    }
+
+    .info {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px;
+      margin-bottom: 30px;
+      border-radius: 4px;
+    }
+
+    .info p {
+      margin: 0;
+      font-size: 14px;
+      color: #856404;
+    }
+
+    .code {
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🪄 Auto-Initialize Widget</h1>
+  <p class="subtitle">Widgets automatically initialize using data attributes</p>
+
+  <div class="info">
+    <p>
+      <strong>How it works:</strong> Add <code>data-vapor-widget</code> attribute to any div,
+      along with <code>data-api-key</code> and other configuration attributes.
+      The widget will automatically initialize when the page loads!
+    </p>
+  </div>
+
+  <div class="grid">
+    <!-- Widget 1: Default Theme -->
+    <div class="widget-card">
+      <h2>Default Theme (Auto)</h2>
+      <div
+        data-vapor-widget
+        data-api-key="vf_test_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabq"
+        data-network="sepolia"
+        data-theme="auto"
+        data-referral-code="demo"
+      ></div>
+      <div class="code">
+&lt;div
+  data-vapor-widget
+  data-api-key="vf_test_xxx"
+  data-network="sepolia"
+  data-theme="auto"
+&gt;&lt;/div&gt;
+      </div>
+    </div>
+
+    <!-- Widget 2: Light Theme -->
+    <div class="widget-card">
+      <h2>Light Theme</h2>
+      <div
+        data-vapor-widget
+        data-api-key="vf_test_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabq"
+        data-network="sepolia"
+        data-theme="light"
+      ></div>
+      <div class="code">
+&lt;div
+  data-vapor-widget
+  data-api-key="vf_test_xxx"
+  data-theme="light"
+&gt;&lt;/div&gt;
+      </div>
+    </div>
+
+    <!-- Widget 3: Dark Theme -->
+    <div class="widget-card">
+      <h2>Dark Theme</h2>
+      <div
+        data-vapor-widget
+        data-api-key="vf_test_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabq"
+        data-network="sepolia"
+        data-theme="dark"
+      ></div>
+      <div class="code">
+&lt;div
+  data-vapor-widget
+  data-api-key="vf_test_xxx"
+  data-theme="dark"
+&gt;&lt;/div&gt;
+      </div>
+    </div>
+
+    <!-- Widget 4: Compact Mode -->
+    <div class="widget-card">
+      <h2>Compact Mode</h2>
+      <div
+        data-vapor-widget
+        data-api-key="vf_test_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabq"
+        data-network="sepolia"
+        data-theme="dark"
+        data-compact="true"
+      ></div>
+      <div class="code">
+&lt;div
+  data-vapor-widget
+  data-api-key="vf_test_xxx"
+  data-compact="true"
+&gt;&lt;/div&gt;
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Widget CSS -->
+  <link rel="stylesheet" href="../dist/cdn/style.css">
+
+  <!-- Load Widget Script (Auto-initializes all widgets) -->
+  <script src="../dist/cdn/vaporfund-widget.min.js"></script>
+</body>
+</html>

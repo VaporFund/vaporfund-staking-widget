@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug - VaporFund Widget</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .debug-panel {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .debug-panel h2 {
+      margin-top: 0;
+      color: #666;
+      font-size: 1.1rem;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .status-item:last-child {
+      border-bottom: none;
+    }
+
+    .status-label {
+      font-weight: 500;
+      color: #666;
+    }
+
+    .status-value {
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+    }
+
+    .status-ok {
+      color: #10b981;
+    }
+
+    .status-error {
+      color: #ef4444;
+    }
+
+    .status-warning {
+      color: #f59e0b;
+    }
+
+    .widget-container {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .alert-error {
+      background: #fee;
+      border: 1px solid #fcc;
+      color: #c33;
+    }
+
+    .alert-warning {
+      background: #fffaeb;
+      border: 1px solid #ffeaa7;
+      color: #856404;
+    }
+
+    .alert-info {
+      background: #e3f2fd;
+      border: 1px solid #90caf9;
+      color: #0d47a1;
+    }
+
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+    }
+
+    .btn {
+      background: #6366f1;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      background: #4f46e5;
+    }
+
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .console {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+
+    .console-line {
+      margin: 2px 0;
+    }
+
+    .console-error {
+      color: #f48771;
+    }
+
+    .console-warn {
+      color: #dcdcaa;
+    }
+
+    .console-info {
+      color: #4fc1ff;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 VaporFund Widget - Debug Mode</h1>
+
+  <!-- Environment Check -->
+  <div class="debug-panel">
+    <h2>🌐 Environment Check</h2>
+    <div id="env-check">
+      <div class="status-item">
+        <span class="status-label">Browser:</span>
+        <span class="status-value" id="browser-info">Checking...</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Window.ethereum:</span>
+        <span class="status-value" id="ethereum-status">Checking...</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">MetaMask Detected:</span>
+        <span class="status-value" id="metamask-status">Checking...</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">VaporWidget Loaded:</span>
+        <span class="status-value" id="widget-status">Checking...</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Widget Version:</span>
+        <span class="status-value" id="widget-version">-</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div id="alerts"></div>
+
+  <!-- Manual Controls -->
+  <div class="debug-panel">
+    <h2>⚙️ Manual Controls</h2>
+    <button class="btn" onclick="testWalletConnection()">Test Wallet Connection</button>
+    <button class="btn" onclick="checkEthereum()">Check window.ethereum</button>
+    <button class="btn" onclick="clearLogs()">Clear Console</button>
+  </div>
+
+  <!-- Console Output -->
+  <div class="debug-panel">
+    <h2>📟 Console Output</h2>
+    <div class="console" id="console-output">
+      <div class="console-line console-info">[Info] Debug console initialized</div>
+    </div>
+  </div>
+
+  <!-- Widget -->
+  <div class="debug-panel">
+    <h2>🎯 Widget Test</h2>
+    <div class="widget-container">
+      <div id="vapor-widget"></div>
+    </div>
+  </div>
+
+  <!-- Load Widget CSS -->
+  <link rel="stylesheet" href="../dist/cdn/style.css">
+
+  <!-- Load Widget Script -->
+  <script src="../dist/cdn/vaporfund-widget.min.js"></script>
+
+  <!-- Debug Script -->
+  <script>
+    // Console logger
+    const consoleOutput = document.getElementById('console-output');
+
+    function addLog(message, type = 'info') {
+      const line = document.createElement('div');
+      line.className = `console-line console-${type}`;
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      consoleOutput.appendChild(line);
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+
+    function clearLogs() {
+      consoleOutput.innerHTML = '<div class="console-line console-info">[Info] Console cleared</div>';
+    }
+
+    // Override console methods
+    const originalLog = console.log;
+    const originalError = console.error;
+    const originalWarn = console.warn;
+
+    console.log = function(...args) {
+      originalLog.apply(console, args);
+      addLog(args.join(' '), 'info');
+    };
+
+    console.error = function(...args) {
+      originalError.apply(console, args);
+      addLog(args.join(' '), 'error');
+    };
+
+    console.warn = function(...args) {
+      originalWarn.apply(console, args);
+      addLog(args.join(' '), 'warn');
+    };
+
+    // Environment checks
+    function checkEnvironment() {
+      addLog('Running environment checks...', 'info');
+
+      // Browser info
+      const browserInfo = navigator.userAgent.split(' ').slice(-2).join(' ');
+      document.getElementById('browser-info').textContent = browserInfo;
+
+      // Check window.ethereum
+      const hasEthereum = typeof window.ethereum !== 'undefined';
+      const ethereumStatus = document.getElementById('ethereum-status');
+      if (hasEthereum) {
+        ethereumStatus.innerHTML = '<span class="status-ok">✓ Available</span>';
+        addLog('window.ethereum is available', 'info');
+      } else {
+        ethereumStatus.innerHTML = '<span class="status-error">✗ Not Found</span>';
+        addLog('window.ethereum is NOT available', 'error');
+        showAlert('error', 'No Web3 wallet detected! Please install MetaMask or another Web3 wallet.');
+      }
+
+      // Check MetaMask
+      const hasMetaMask = hasEthereum && window.ethereum.isMetaMask;
+      const metamaskStatus = document.getElementById('metamask-status');
+      if (hasMetaMask) {
+        metamaskStatus.innerHTML = '<span class="status-ok">✓ Yes</span>';
+        addLog('MetaMask detected', 'info');
+      } else if (hasEthereum) {
+        metamaskStatus.innerHTML = '<span class="status-warning">⚠ Other Wallet</span>';
+        addLog('Non-MetaMask wallet detected', 'warn');
+      } else {
+        metamaskStatus.innerHTML = '<span class="status-error">✗ No</span>';
+        addLog('No MetaMask detected', 'error');
+      }
+
+      // Check VaporWidget
+      const hasWidget = typeof VaporWidget !== 'undefined';
+      const widgetStatus = document.getElementById('widget-status');
+      if (hasWidget) {
+        widgetStatus.innerHTML = '<span class="status-ok">✓ Loaded</span>';
+        document.getElementById('widget-version').textContent = VaporWidget.getVersion();
+        addLog('VaporWidget loaded successfully', 'info');
+        addLog('Widget version: ' + VaporWidget.getVersion(), 'info');
+      } else {
+        widgetStatus.innerHTML = '<span class="status-error">✗ Not Loaded</span>';
+        addLog('VaporWidget NOT loaded', 'error');
+        showAlert('error', 'Widget failed to load! Check if the CDN file exists.');
+      }
+    }
+
+    // Show alert
+    function showAlert(type, message) {
+      const alerts = document.getElementById('alerts');
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type}`;
+      alert.innerHTML = `<strong>${type.toUpperCase()}:</strong> ${message}`;
+      alerts.appendChild(alert);
+    }
+
+    // Test wallet connection
+    async function testWalletConnection() {
+      addLog('Testing wallet connection...', 'info');
+
+      if (typeof window.ethereum === 'undefined') {
+        addLog('ERROR: window.ethereum is undefined', 'error');
+        alert('No Web3 wallet found! Please install MetaMask.');
+        return;
+      }
+
+      try {
+        addLog('Requesting accounts...', 'info');
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        addLog('Connected! Account: ' + accounts[0], 'info');
+        alert('Success! Connected to: ' + accounts[0].substring(0, 10) + '...');
+      } catch (error) {
+        addLog('ERROR: ' + error.message, 'error');
+        alert('Connection failed: ' + error.message);
+      }
+    }
+
+    // Check ethereum details
+    function checkEthereum() {
+      addLog('Checking window.ethereum details...', 'info');
+
+      if (typeof window.ethereum === 'undefined') {
+        addLog('window.ethereum is undefined', 'error');
+        return;
+      }
+
+      addLog('isMetaMask: ' + window.ethereum.isMetaMask, 'info');
+      addLog('chainId: ' + window.ethereum.chainId, 'info');
+      addLog('selectedAddress: ' + window.ethereum.selectedAddress, 'info');
+      addLog('networkVersion: ' + window.ethereum.networkVersion, 'info');
+    }
+
+    // Initialize
+    window.addEventListener('load', function() {
+      addLog('Page loaded', 'info');
+      checkEnvironment();
+
+      // Initialize widget
+      if (typeof VaporWidget !== 'undefined') {
+        addLog('Initializing widget...', 'info');
+
+        try {
+          VaporWidget.init({
+            container: '#vapor-widget',
+            apiKey: 'vf_test_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabq',
+            network: 'sepolia',
+            theme: 'dark',
+            onSuccess: function(tx) {
+              addLog('SUCCESS: Stake completed! TX: ' + tx.hash, 'info');
+              alert('Staking successful!\nTransaction: ' + tx.hash);
+            },
+            onError: function(error) {
+              addLog('ERROR: ' + error.message, 'error');
+              alert('Error: ' + error.message);
+            }
+          });
+
+          addLog('Widget initialized successfully', 'info');
+        } catch (error) {
+          addLog('ERROR initializing widget: ' + error.message, 'error');
+          showAlert('error', 'Widget initialization failed: ' + error.message);
+        }
+      } else {
+        showAlert('error', 'VaporWidget is not loaded! Build the CDN version with: yarn build:cdn');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -54,7 +54,7 @@ import { VaporStakingWidget } from '@vaporfund/staking-widget';
 function App() {
   return (
     <VaporStakingWidget
-      apiKey="pk_live_xxxxx"
+      apiKey="vf_live_xxxxx"
       referralCode="your_code"
     />
   );
@@ -69,12 +69,32 @@ function App() {
 <script>
   VaporWidget.init({
     container: '#vapor-staking',
-    apiKey: 'pk_live_xxxxx'
+    apiKey: 'vf_live_xxxxx'
   });
 </script>
 ```
 
-[Get your API key →](https://partner.vaporfund.com/signup)
+[Get your API key →](mailto:partners@vaporfund.com) | [📖 Full Integration Guide →](./INTEGRATION_GUIDE.md)
+
+## Getting Your API Key
+
+Before you can use the widget, you need an API key from VaporFund:
+
+1. **Contact VaporFund Team**: Email partners@vaporfund.com
+2. **Provide Details**: Share your website URL and expected volume
+3. **Receive API Key**: Get your key in format `vf_test_xxxxx` or `vf_live_xxxxx`
+
+**API Key Types:**
+- `vf_test_xxxxx` - For Sepolia testnet (development)
+- `vf_live_xxxxx` - For Ethereum mainnet (production)
+
+**Features Included:**
+- Domain whitelisting for security
+- Rate limiting based on your tier
+- Usage analytics and tracking
+- Referral program integration
+
+👉 **[Complete Integration Guide →](./INTEGRATION_GUIDE.md)**
 
 ## Installation
 
@@ -124,7 +144,7 @@ export default function StakingPage() {
 
   return (
     <VaporStakingWidget
-      apiKey={process.env.NEXT_PUBLIC_VAPOR_API_KEY}
+      apiKey={process.env.NEXT_PUBLIC_WIDGET_API_KEY}
       referralCode="partner_123"
       theme="dark"
       onSuccess={handleSuccess}
@@ -231,7 +251,7 @@ const StakingWidget = () => {
 
 | Prop | Type | Default | Required | Description |
 |------|------|---------|----------|-------------|
-| `apiKey` | `string` | - | ✅ | Your VaporFund API key |
+| `apiKey` | `string` | - | ✅ | Your VaporFund API key (`vf_test_xxx` or `vf_live_xxx`) |
 | `referralCode` | `string` | - | - | Partner referral code for revenue sharing |
 | `theme` | `'light' \| 'dark' \| 'auto'` | `'auto'` | - | Color theme |
 | `defaultToken` | `string` | `'USDC'` | - | Pre-selected token |
@@ -247,7 +267,7 @@ const StakingWidget = () => {
 
 ```jsx
 <VaporStakingWidget
-  apiKey="pk_live_xxxxx"
+  apiKey="vf_live_xxxxx"
   referralCode="partner_123"
   theme="dark"
   compact={false}
@@ -407,8 +427,8 @@ cd src/widget
 yarn install
 
 # Set up environment variables
-cp .env.example .env
-# Edit .env and add your API key
+cp .env.example .env.local
+# Edit .env.local and add your API key (vf_test_xxx for development)
 
 # Start development server
 yarn dev
@@ -543,9 +563,12 @@ chore(widget): maintenance tasks
 
 ## Documentation
 
+- **[Integration Guide](./INTEGRATION_GUIDE.md)** - Complete guide for widget integration ⭐
+- **[CDN Usage Guide](./CDN_USAGE.md)** - Guide for using widget via CDN (vanilla JS) 🎯
+- **[Testing Guide](./TESTING_GUIDE.md)** - Comprehensive testing guide
+- **[Test Scenarios](./TEST_SCENARIOS.md)** - Quick test reference
 - **[Setup Guide](./SETUP.md)** - Developer setup and quick start
-- **[Project Plan](./PROJECT_PLAN.md)** - 8-week development roadmap
-- **[Requirements Specification](./SRS.md)** - Complete SRS document
+- **[Examples](./examples/)** - Live examples and demos
 - **API Reference:** [staking-api.vaporfund.com/docs](https://staking-api.vaporfund.com/api/v1/docs)
 
 ## Support
