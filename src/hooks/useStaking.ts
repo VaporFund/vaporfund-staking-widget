@@ -5,6 +5,7 @@ import { getWeb3Provider } from '@/lib/web3/provider';
 import { getStakingContract, getTokenContract, getTokenBalance, getTokenAllowance, approveToken, stakeTokens } from '@/lib/web3/contracts';
 import { CONTRACT_ADDRESSES, STAKING_CONFIG } from '@/constants';
 import { validateStakeAmount } from '@/lib/utils/validation';
+import ApiClient from '@/lib/api/client';
 
 interface UseStakingOptions {
   network: 'mainnet' | 'sepolia';
@@ -34,6 +35,7 @@ export function useStaking(options: UseStakingOptions): UseStakingReturn {
 
   const [isStaking, setIsStaking] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
+  const [apiClient] = useState(() => new ApiClient(apiKey));
 
   // Get user's token balance
   const getBalance = useCallback(
@@ -161,9 +163,19 @@ export function useStaking(options: UseStakingOptions): UseStakingReturn {
         };
 
         // Track referral if provided
-        if (referralCode && apiKey) {
-          // TODO: Call API to track referral
-          // This would be done via ApiClient in a real implementation
+        if (referralCode) {
+          try {
+            await apiClient.trackReferral({
+              referralCode,
+              txHash: receipt.hash,
+              amount,
+              fee: '0', // Backend will calculate the actual fee
+            });
+            console.log('Referral tracked successfully:', referralCode);
+          } catch (error) {
+            // Log error but don't fail the transaction
+            console.warn('Failed to track referral:', error);
+          }
         }
 
         onSuccess?.(transaction);
@@ -180,7 +192,7 @@ export function useStaking(options: UseStakingOptions): UseStakingReturn {
         setIsStaking(false);
       }
     },
-    [network, apiKey, referralCode, onSuccess, onError, getBalance, needsApproval, approve]
+    [network, apiKey, referralCode, onSuccess, onError, getBalance, needsApproval, approve, apiClient]
   );
 
   return {

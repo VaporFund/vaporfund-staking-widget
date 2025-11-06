@@ -62,26 +62,90 @@
   <script>
     // Wait for widget to load
     if (typeof VaporWidget !== 'undefined') {
-      // Initialize the widget
+      // Initialize the VaporFund Staking Widget
       VaporWidget.init({
+        // Target container - ID or class selector
         container: '#vapor-staking-widget',
+
+        // Your API key from https://partner.vaporfund.com/signup
+        // This is a test API key for Sepolia testnet
         apiKey: 'vf_test_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabq',
+
+        // Network: 'sepolia' for testing, 'mainnet' for production
         network: 'sepolia',
+
+        // Theme: 'light', 'dark', or 'auto'
         theme: 'dark',
+
+        // Your referral code to earn revenue share
+        // Automatically tracks all successful stakes - no extra code needed!
         referralCode: 'demo',
+
+        // Default token to stake
+        defaultToken: 'USDC',
+
+        // Optional: Custom colors
+        // customColors: {
+        //   primary: '#6366f1',
+        //   accent: '#8b5cf6',
+        // },
+
+        // Optional: Compact mode
+        // compact: true,
+
+        // Success callback - triggered after successful stake
         onSuccess: function(tx) {
           console.log('✅ Staking successful!', tx);
-          alert('Staking successful! Transaction: ' + tx.hash);
+          console.log('Transaction Hash:', tx.hash);
+          console.log('Amount:', tx.amount, tx.token);
+          console.log('Strategy:', tx.strategy);
+          console.log('Referral Fee:', tx.referralFee);
+
+          alert(
+            'Staking successful!\n\n' +
+            'Amount: ' + tx.amount + ' ' + tx.token + '\n' +
+            'Transaction: ' + tx.hash
+          );
+
+          // Example: Send to your backend
+          // fetch('/api/save-transaction', {
+          //   method: 'POST',
+          //   headers: { 'Content-Type': 'application/json' },
+          //   body: JSON.stringify(tx)
+          // });
         },
+
+        // Error callback - triggered on failure
         onError: function(error) {
           console.error('❌ Staking failed:', error);
-          alert('Error: ' + error.message);
+          console.error('Error Code:', error.code);
+          console.error('Error Message:', error.message);
+
+          // Handle specific error codes
+          var errorMsg = error.message;
+          switch(error.code) {
+            case 'INSUFFICIENT_BALANCE':
+              errorMsg = 'You do not have enough tokens to stake.';
+              break;
+            case 'TRANSACTION_REJECTED':
+              errorMsg = 'You rejected the transaction in your wallet.';
+              break;
+            case 'WALLET_NOT_CONNECTED':
+              errorMsg = 'Please connect your wallet first.';
+              break;
+            case 'INVALID_API_KEY':
+              errorMsg = 'Invalid API key. Please contact support.';
+              break;
+          }
+
+          alert('Error: ' + errorMsg);
         }
       });
 
-      console.log('VaporWidget v' + VaporWidget.getVersion() + ' initialized!');
+      console.log('✅ VaporWidget v' + VaporWidget.getVersion() + ' initialized!');
+      console.log('📝 Referral tracking is active for code: demo');
     } else {
-      console.error('VaporWidget not loaded! Build the CDN version with: yarn build:cdn');
+      console.error('❌ VaporWidget not loaded! Build the CDN version with: yarn build:cdn');
     }
   </script>
 </body>

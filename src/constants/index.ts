@@ -45,6 +45,7 @@ export const API_ENDPOINTS = {
   TOKENS: '/api/v1/widget/tokens',
   PREPARE_TRANSACTION: '/api/v1/widget/prepare-transaction',
   TRACK_TRANSACTION: '/api/v1/widget/track-transaction',
+  TRACK_REFERRAL: '/api/v1/widget/track-referral',
 } as const;
 
 // Staking Configuration

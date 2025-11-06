@@ -13,6 +13,8 @@ A lightweight React component that enables USDC staking directly from your websi
 
 - [Features](#features)
 - [Quick Start](#quick-start)
+- [Getting Your API Key](#getting-your-api-key)
+- [Referral Program](#referral-program)
 - [Installation](#installation)
 - [Usage](#usage)
   - [React/Next.js](#reactnextjs)
@@ -32,8 +34,10 @@ A lightweight React component that enables USDC staking directly from your websi
 ## Features
 
 - **🚀 Quick Integration** - Single line of code to add staking
+- **💰 Referral Tracking** - Built-in partner revenue sharing (0.25-0.50%)
+- **📊 APY-Based Staking** - User-selected APY with dynamic lock periods
+- **🔑 API Key System** - Secure authentication and domain whitelisting
 - **🎨 Customizable Themes** - Light/dark modes with full color customization
-- **💰 Referral Tracking** - Built-in partner revenue sharing
 - **🔐 Secure** - Non-custodial, audited smart contracts
 - **📱 Mobile Responsive** - Works on all devices
 - **⚡ Lightweight** - ~45KB gzipped bundle
@@ -69,7 +73,8 @@ function App() {
 <script>
   VaporWidget.init({
     container: '#vapor-staking',
-    apiKey: 'vf_live_xxxxx'
+    apiKey: 'vf_live_xxxxx',
+    referralCode: 'your_code' // Optional: earn revenue share
   });
 </script>
 ```
@@ -95,6 +100,52 @@ Before you can use the widget, you need an API key from VaporFund:
 - Referral program integration
 
 👉 **[Complete Integration Guide →](./INTEGRATION_GUIDE.md)**
+
+## Referral Program
+
+Earn **0.25-0.50% revenue share** on all staking volume processed through your widget!
+
+### How It Works
+
+1. **Get Your Referral Code**: Included when you receive your API key
+2. **Add to Widget**: Pass `referralCode` prop - tracking is automatic
+3. **Users Stake**: All successful stakes are tracked to your account
+4. **Earn Revenue**: Receive monthly payouts in USDC (minimum $100)
+
+### Implementation
+
+```jsx
+// React
+<VaporStakingWidget
+  apiKey="vf_live_xxxxx"
+  referralCode="partner_123" // 👈 Add this to start earning
+/>
+
+// Vanilla JS
+VaporWidget.init({
+  apiKey: 'vf_live_xxxxx',
+  referralCode: 'partner_123' // 👈 Add this to start earning
+});
+```
+
+**That's it!** No additional code needed - referral tracking happens automatically when users successfully stake.
+
+### Revenue Details
+
+| Volume/Month | Revenue Share | Example Earnings |
+|--------------|---------------|------------------|
+| $10,000 | 0.25% | $25/month |
+| $100,000 | 0.30% | $300/month |
+| $500,000 | 0.40% | $2,000/month |
+| $1,000,000+ | 0.50% | $5,000+/month |
+
+**Payment Terms:**
+- Paid monthly in USDC
+- Minimum payout: $100
+- Earnings accumulate if below minimum
+- Payouts sent by 5th of each month
+
+👉 **[Apply for Referral Program →](mailto:partners@vaporfund.com?subject=Referral%20Program)**
 
 ## Installation
 
@@ -179,10 +230,13 @@ const VaporStakingWidget = dynamic(
   <script>
     VaporWidget.init({
       container: '#vapor-staking',
-      apiKey: 'pk_live_xxxxx',
-      referralCode: 'partner_123',
+      apiKey: 'vf_live_xxxxx', // Your VaporFund API key
+      referralCode: 'partner_123', // Your referral code
       theme: 'auto',
-      onSuccess: (tx) => console.log('Success!', tx),
+      onSuccess: (tx) => {
+        console.log('Stake successful!', tx);
+        console.log('Referral fee:', tx.referralFee);
+      },
       onError: (error) => console.error('Error:', error)
     });
   </script>
@@ -213,7 +267,15 @@ function vapor_staking_widget_shortcode($atts) {
 add_shortcode('vapor_staking', 'vapor_staking_widget_shortcode');
 ```
 
-Usage: `[vapor_staking api_key="pk_live_xxxxx" referral_code="your_code"]`
+**Usage in WordPress:**
+```
+[vapor_staking api_key="vf_live_xxxxx" referral_code="your_code" theme="auto"]
+```
+
+**Example:**
+```
+[vapor_staking api_key="vf_live_abc123def456" referral_code="partner_123"]
+```
 
 ### React Native
 
@@ -234,6 +296,7 @@ const StakingWidget = () => {
           VaporWidget.init({
             container: '#vapor-staking',
             apiKey: '${process.env.VAPOR_API_KEY}',
+            referralCode: '${process.env.VAPOR_REFERRAL_CODE}',
             theme: 'dark'
           });
         </script>
@@ -252,7 +315,7 @@ const StakingWidget = () => {
 | Prop | Type | Default | Required | Description |
 |------|------|---------|----------|-------------|
 | `apiKey` | `string` | - | ✅ | Your VaporFund API key (`vf_test_xxx` or `vf_live_xxx`) |
-| `referralCode` | `string` | - | - | Partner referral code for revenue sharing |
+| `referralCode` | `string` | - | - | Partner referral code for revenue sharing (automatically tracked after successful stakes) |
 | `theme` | `'light' \| 'dark' \| 'auto'` | `'auto'` | - | Color theme |
 | `defaultToken` | `string` | `'USDC'` | - | Pre-selected token |
 | `defaultStrategy` | `string` | - | - | Pre-selected staking strategy |
@@ -543,8 +606,10 @@ chore(widget): maintenance tasks
 - [x] Wallet connection (WalletConnect, MetaMask)
 - [x] USDC staking interface
 - [x] Light/Dark themes with customization
-- [x] Referral tracking hooks
+- [x] Referral tracking and API integration
 - [x] Strategy selection UI
+- [x] APY-based staking with dynamic lock periods
+- [x] API key validation system
 - [ ] Backend API integration (in progress)
 - [ ] Smart contract testing on testnet
 - [ ] Production deployment
@@ -599,7 +664,14 @@ All major wallets via WalletConnect: MetaMask, Rainbow, Coinbase Wallet, Trust W
 No. Users connect their own wallets. We never custody funds.
 
 **How do referral fees work?**
-You earn 0.25-0.50% of volume. Paid monthly in USDC (min $100).
+You earn 0.25-0.50% of volume. Paid monthly in USDC (min $100). Simply pass your `referralCode` prop to the widget - it will automatically track all successful stakes and associate them with your account.
+
+**How is referral tracking implemented?**
+When a user successfully stakes tokens, the widget automatically calls the VaporFund API to track the referral:
+1. User completes stake transaction
+2. Widget sends referral data to backend (transaction hash, amount, referral code)
+3. Backend calculates and records your referral fee
+4. You receive monthly payouts based on tracked volume
 
 See full [FAQ →](https://docs.vaporfund.com/widget/faq)
 

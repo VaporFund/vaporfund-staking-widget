@@ -1,6 +1,11 @@
-# VaporFund Widget - CDN Examples
+# VaporFund Widget - Examples
 
-This folder contains examples of using the VaporFund widget via CDN (without npm/yarn).
+This folder contains examples of using the VaporFund Staking Widget in different environments:
+- React (NPM package)
+- Next.js (NPM package with SSR disabled)
+- Vanilla JavaScript (CDN)
+
+All examples include **referral code tracking** for earning revenue share on staking volume.
 
 ## ⚠️ Important: Use HTTP Server
 
@@ -50,9 +55,102 @@ python3 -m http.server 8080
 
 ---
 
+## 💰 Referral Code Feature
+
+**All examples include referral tracking!** Simply add your `referralCode` to earn revenue share:
+
+```javascript
+VaporWidget.init({
+  apiKey: 'vf_test_xxxxx',
+  referralCode: 'your_code_here', // 👈 Earn 0.25-0.50% on all stakes
+  // ... other config
+});
+```
+
+**How it works:**
+1. User stakes through your widget
+2. Transaction completes successfully
+3. Widget automatically calls backend API to track referral
+4. Your earnings accumulate
+5. Get paid monthly in USDC
+
+**No extra code needed** - referral tracking is completely automatic!
+
+---
+
 ## 📁 Example Files
 
-### 1. test-wallet.html
+### React & Next.js Examples
+
+#### react/App.tsx
+**Purpose**: React component integration
+
+**Features**:
+- TypeScript types
+- Environment variables
+- Success/error callbacks
+- Referral tracking
+- Custom colors
+
+**Usage**:
+```bash
+cd examples/react
+npm install
+npm start
+```
+
+**Set environment variables:**
+```bash
+# .env
+REACT_APP_VAPOR_API_KEY=vf_test_xxxxx
+REACT_APP_VAPOR_REFERRAL_CODE=your_code
+```
+
+---
+
+#### nextjs/page.tsx
+**Purpose**: Next.js App Router integration
+
+**Features**:
+- SSR disabled (dynamic import)
+- Server/client components
+- Environment variables
+- Referral tracking
+- Error handling
+
+**Usage**:
+```bash
+cd examples/nextjs
+npm install
+npm run dev
+```
+
+**Set environment variables:**
+```bash
+# .env.local
+NEXT_PUBLIC_VAPOR_API_KEY=vf_test_xxxxx
+NEXT_PUBLIC_VAPOR_REFERRAL_CODE=your_code
+```
+
+---
+
+#### vanilla-js/index.html
+**Purpose**: Pure JavaScript integration (no build tools)
+
+**Features**:
+- No dependencies
+- Simple CDN integration
+- Referral tracking
+- Comprehensive error handling
+- Production-ready
+
+**Usage**: Serve with HTTP server (see Quick Start)
+
+---
+
+### CDN Examples
+
+#### 1. test-wallet.html
 **Purpose**: Test wallet detection and connection
 
 **Features**:
@@ -70,12 +168,14 @@ python3 -m http.server 8080
 
 ---
 
-### 2. simple-cdn.html
-**Purpose**: Minimal working example
+#### 2. simple-cdn.html
+**Purpose**: Minimal working example with referral tracking
 
 **Features**:
 - Single widget instance
 - Basic configuration
+- Referral code integration
+- Comprehensive callbacks
 - Simple UI
 
 **URL**: http://localhost:8080/examples/simple-cdn.html
@@ -87,7 +187,7 @@ python3 -m http.server 8080
 
 ---
 
-### 3. debug-cdn.html
+#### 3. debug-cdn.html
 **Purpose**: Full debugging interface
 
 **Features**:
@@ -105,7 +205,7 @@ python3 -m http.server 8080
 
 ---
 
-### 4. cdn-example.html
+#### 4. cdn-example.html
 **Purpose**: Advanced features showcase
 
 **Features**:
@@ -123,13 +223,14 @@ python3 -m http.server 8080
 
 ---
 
-### 5. auto-init-cdn.html
-**Purpose**: Data attributes demo
+#### 5. auto-init-cdn.html
+**Purpose**: Data attributes demo with referral tracking
 
 **Features**:
 - Auto-initialization
 - Multiple themes
 - Compact mode
+- Referral code via data attributes
 - No JavaScript required
 
 **URL**: http://localhost:8080/examples/auto-init-cdn.html
