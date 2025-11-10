@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { WalletState, ErrorCode, WidgetError } from '@/types';
-import { getWeb3Provider, requestAccounts, getChainId, onAccountsChanged, onChainChanged, switchNetwork } from '@/lib/web3/provider';
+import { getWeb3Provider, getWeb3ProviderAsync, requestAccounts, getChainId, onAccountsChanged, onChainChanged, switchNetwork } from '@/lib/web3/provider';
 
 interface UseWalletOptions {
   network?: 'mainnet' | 'sepolia';
@@ -29,16 +29,30 @@ export function useWallet(options: UseWalletOptions = {}): UseWalletReturn {
     setState((prev) => ({ ...prev, isConnecting: true, error: null }));
 
     try {
-      const provider = getWeb3Provider();
+      console.log('[VaporWidget] Starting wallet connection...');
+
+      // Try to get provider, wait if needed
+      let provider = getWeb3Provider();
+
       if (!provider) {
-        throw {
-          code: ErrorCode.WALLET_NOT_CONNECTED,
-          message: 'No Web3 wallet detected. Please install MetaMask or another Web3 wallet.',
-        } as WidgetError;
+        console.log('[VaporWidget] Provider not immediately available, waiting...');
+        // Wait for wallet extension to load
+        await getWeb3ProviderAsync();
+        provider = getWeb3Provider();
       }
 
+      if (!provider) {
+        const error = new Error('No Web3 wallet detected. Please install MetaMask or another Web3 wallet.') as any;
+        error.code = ErrorCode.WALLET_NOT_CONNECTED;
+        throw error;
+      }
+
+      console.log('[VaporWidget] Provider found, requesting accounts...');
       const accounts = await requestAccounts();
+
+      console.log('[VaporWidget] Accounts received:', accounts.length);
       const chainId = await getChainId();
+      console.log('[VaporWidget] Chain ID:', chainId);
 
       setState({
         address: accounts[0],
@@ -47,19 +61,35 @@ export function useWallet(options: UseWalletOptions = {}): UseWalletReturn {
         isConnecting: false,
         error: null,
       });
+
+      console.log('[VaporWidget] Wallet connected successfully!');
     } catch (error: any) {
-      const widgetError: WidgetError = {
-        code: error.code || ErrorCode.UNKNOWN_ERROR,
-        message: error.message || 'Failed to connect wallet',
-      };
+      console.error('[VaporWidget] Wallet connection failed:', error);
+
+      let errorMessage = 'Failed to connect wallet';
+      let errorCode = ErrorCode.UNKNOWN_ERROR;
+
+      if (error.code === ErrorCode.WALLET_NOT_CONNECTED || error.message?.includes('No Web3 wallet')) {
+        errorMessage = 'No Web3 wallet detected. Please install MetaMask or another Web3 wallet.';
+        errorCode = ErrorCode.WALLET_NOT_CONNECTED;
+      } else if (error.code === 4001) {
+        errorMessage = 'Connection request rejected by user';
+        errorCode = 'USER_REJECTED';
+      } else if (error.message?.includes('User rejected')) {
+        errorMessage = 'Connection request rejected by user';
+        errorCode = 'USER_REJECTED';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
 
       setState((prev) => ({
         ...prev,
         isConnecting: false,
-        error: widgetError.message,
+        error: errorMessage,
       }));
 
-      throw widgetError;
+      // Don't re-throw, just set error state
+      // This prevents unhandled promise rejections
     }
   }, []);
 

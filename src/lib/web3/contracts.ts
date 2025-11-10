@@ -68,10 +68,29 @@ export async function getTokenBalance(
   userAddress: string,
   provider: ethers.Provider
 ): Promise<string> {
+  console.log('Getting token balance:', { tokenAddress, userAddress });
+
+  // Check if contract exists at this address
+  const code = await provider.getCode(tokenAddress);
+  if (code === '0x') {
+    // Contract not deployed at this address
+    console.error(`❌ No contract found at ${tokenAddress}`);
+    throw new Error(`Token contract not found at ${tokenAddress}. Please check the contract address.`);
+  }
+
   const contract = getTokenContract(tokenAddress, provider);
   const balance = await contract.balanceOf(userAddress);
   const decimals = await contract.decimals();
-  return ethers.formatUnits(balance, decimals);
+  const formattedBalance = ethers.formatUnits(balance, decimals);
+
+  console.log('Token balance retrieved:', {
+    tokenAddress,
+    userAddress,
+    balance: formattedBalance,
+    decimals,
+  });
+
+  return formattedBalance;
 }
 
 /**
@@ -83,6 +102,13 @@ export async function getTokenAllowance(
   spenderAddress: string,
   provider: ethers.Provider
 ): Promise<string> {
+  // Check if contract exists at this address
+  const code = await provider.getCode(tokenAddress);
+  if (code === '0x') {
+    // Contract not deployed at this address
+    return '0';
+  }
+
   const contract = getTokenContract(tokenAddress, provider);
   const allowance = await contract.allowance(userAddress, spenderAddress);
   const decimals = await contract.decimals();
@@ -98,12 +124,17 @@ export async function approveToken(
   amount: string,
   signer: ethers.Signer
 ): Promise<ethers.TransactionReceipt> {
-  const contract = getTokenContract(tokenAddress, signer);
-  const decimals = await contract.decimals();
-  const amountWei = ethers.parseUnits(amount, decimals);
+  try {
+    const contract = getTokenContract(tokenAddress, signer);
+    const decimals = await contract.decimals();
+    const amountWei = ethers.parseUnits(amount, decimals);
 
-  const tx = await contract.approve(spenderAddress, amountWei);
-  return await tx.wait();
+    const tx = await contract.approve(spenderAddress, amountWei);
+    return await tx.wait();
+  } catch (error) {
+    console.error('Failed to approve token:', error);
+    throw error;
+  }
 }
 
 /**
@@ -115,13 +146,18 @@ export async function stakeTokens(
   network: 'mainnet' | 'sepolia',
   signer: ethers.Signer
 ): Promise<ethers.TransactionReceipt> {
-  const contract = getStakingContract(network, signer);
-  const tokenContract = getTokenContract(tokenAddress, signer);
-  const decimals = await tokenContract.decimals();
-  const amountWei = ethers.parseUnits(amount, decimals);
+  try {
+    const contract = getStakingContract(network, signer);
+    const tokenContract = getTokenContract(tokenAddress, signer);
+    const decimals = await tokenContract.decimals();
+    const amountWei = ethers.parseUnits(amount, decimals);
 
-  const tx = await contract.depositToken(tokenAddress, amountWei);
-  return await tx.wait();
+    const tx = await contract.depositToken(tokenAddress, amountWei);
+    return await tx.wait();
+  } catch (error) {
+    console.error('Failed to stake tokens:', error);
+    throw error;
+  }
 }
 
 /**

@@ -26,7 +26,7 @@ function App() {
     }}>
       <div style={{ maxWidth: '500px', width: '100%' }}>
         <VaporStakingWidget
-          apiKey="pk_test_12345678901234567890123456789012"
+          apiKey={import.meta.env.VITE_WIDGET_API_KEY || "vf_test_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabq"}
           referralCode="dev_test"
           theme="auto"
           defaultToken="USDC"

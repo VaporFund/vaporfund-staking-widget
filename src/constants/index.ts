@@ -20,17 +20,32 @@ export const CONTRACT_ADDRESSES = {
   sepolia: '0x508e7698c9fE9214b2aaF3Da5149849CbCBeE009',
 } as const;
 
+// Token Addresses by Network
+export const TOKEN_ADDRESSES = {
+  mainnet: {
+    USDT: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    USDC: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+  },
+  sepolia: {
+    USDC: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', // Circle's Official USDC on Sepolia
+  },
+} as const;
+
 // API Configuration
 export const API_BASE_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://staking-api.vaporfund.com/api/v1'
-    : 'http://localhost:3001/api/v1';
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.MODE === 'production'
+    ? 'https://staking-api.vaporfund.com'
+    : 'http://localhost:3001');
 
 export const API_ENDPOINTS = {
-  STRATEGIES: '/strategies',
-  TOKENS: '/tokens/whitelist',
-  PREPARE_TRANSACTION: '/transactions/prepare',
-  TRACK_REFERRAL: '/referrals/track',
+  HEALTH: '/api/v1/widget/health',
+  STRATEGIES: '/api/v1/widget/strategies',
+  TOKENS: '/api/v1/widget/tokens',
+  PREPARE_TRANSACTION: '/api/v1/widget/prepare-transaction',
+  TRACK_TRANSACTION: '/api/v1/widget/track-transaction',
+  TRACK_REFERRAL: '/api/v1/widget/track-referral',
 } as const;
 
 // Staking Configuration

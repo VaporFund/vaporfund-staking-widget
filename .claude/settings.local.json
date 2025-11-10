@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(yarn dev)",
+      "Bash(yarn install:*)",
+      "Bash(env)",
+      "Bash(yarn build)",
+      "Bash(npx ts-node:*)",
+      "Bash(yarn start:dev:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(curl:*)",
+      "Bash(PGPASSWORD=postgres psql:*)",
+      "WebSearch",
+      "WebFetch(domain:developers.circle.com)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(yarn add:*)",
+      "Bash(yarn build:cdn)",
+      "Bash(find:*)",
+      "Bash(kill:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

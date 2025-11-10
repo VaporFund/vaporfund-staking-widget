@@ -40,21 +40,72 @@
   <script src="https://cdn.vaporfund.com/widget/v1.min.js"></script>
 
   <script>
-    // Initialize the widget
+    // Initialize the VaporFund Staking Widget
     VaporWidget.init({
       container: '#vapor-staking',
-      apiKey: 'pk_live_xxxxx', // Replace with your API key
-      referralCode: 'partner_123', // Optional: your referral code
-      theme: 'auto',
+
+      // Get your API key from: https://partner.vaporfund.com/signup
+      // Format: vf_test_xxxxx (testnet) or vf_live_xxxxx (mainnet)
+      apiKey: 'vf_test_xxxxx', // Replace with your actual API key
+
+      // Optional: Add your referral code to earn revenue share (0.25-0.50%)
+      // Referral tracking happens automatically after successful stakes
+      referralCode: 'partner_123', // Replace with your referral code
+
+      // Widget configuration
+      theme: 'auto', // 'light', 'dark', or 'auto'
       defaultToken: 'USDC',
-      network: 'mainnet',
-      onSuccess: function(transaction) {
-        console.log('Stake successful!', transaction);
-        alert('Stake successful! TX: ' + transaction.hash);
+      network: 'sepolia', // Use 'mainnet' for production
+
+      // Optional: Custom branding
+      customColors: {
+        primary: '#6366f1',
+        accent: '#8b5cf6',
       },
+
+      // Optional: Compact mode for smaller spaces
+      // compact: true,
+
+      // Success callback - called when stake completes
+      onSuccess: function(transaction) {
+        console.log('✅ Stake successful!', transaction);
+        console.log('Transaction Hash:', transaction.hash);
+        console.log('Amount:', transaction.amount, transaction.token);
+        console.log('Strategy:', transaction.strategy);
+        console.log('Referral Fee:', transaction.referralFee);
+
+        // Show success message to user
+        alert(
+          'Successfully staked ' + transaction.amount + ' ' + transaction.token + '!\n\n' +
+          'Transaction Hash: ' + transaction.hash + '\n' +
+          'View on Etherscan'
+        );
+
+        // You can also send the transaction to your backend
+        // fetch('/api/track-stake', {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify(transaction)
+        // });
+      },
+
+      // Error callback - called when something goes wrong
       onError: function(error) {
-        console.error('Staking failed:', error);
-        alert('Error: ' + error.message);
+        console.error('❌ Staking failed:', error);
+        console.error('Error Code:', error.code);
+        console.error('Error Message:', error.message);
+
+        // Handle different error types
+        var errorMessage = error.message;
+        if (error.code === 'INSUFFICIENT_BALANCE') {
+          errorMessage = 'You do not have enough tokens to stake.';
+        } else if (error.code === 'TRANSACTION_REJECTED') {
+          errorMessage = 'You rejected the transaction in your wallet.';
+        } else if (error.code === 'WALLET_NOT_CONNECTED') {
+          errorMessage = 'Please connect your wallet first.';
+        }
+
+        alert('Error: ' + errorMessage);
       }
     });
   </script>

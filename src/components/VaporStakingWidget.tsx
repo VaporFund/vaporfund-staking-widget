@@ -37,21 +37,28 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [selectedStrategy, setSelectedStrategy] = useState<string>('');
   const [balance, setBalance] = useState('0');
+  const [tokenAddress, setTokenAddress] = useState<string>(''); // Store current token address
   const [error, setError] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [completedTransaction, setCompletedTransaction] = useState<Transaction | null>(null);
   const [estimatedGas, setEstimatedGas] = useState('0.001');
   const [isAboutExpanded, setIsAboutExpanded] = useState(true);
+  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
+  const [isValidatingApiKey, setIsValidatingApiKey] = useState(true);
 
   const maxAPY = 20; // Cap at 20% - matching frontend
 
   // API Client
   const [apiClient] = useState(() => new ApiClient(apiKey));
 
-  // Load strategies on mount (optional - for future use)
+  // Validate API key on mount
   useEffect(() => {
-    async function loadStrategies() {
+    async function validateApiKey() {
       try {
+        setIsValidatingApiKey(true);
+        setApiKeyError(null);
+
+        // Try to fetch strategies to validate API key
         const data = await apiClient.getStrategies();
         setStrategies(data.strategies);
 
@@ -61,26 +68,57 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
         } else if (data.strategies.length > 0) {
           setSelectedStrategy(data.strategies[0].id);
         }
+
+        setIsValidatingApiKey(false);
       } catch (err: any) {
-        console.error('Failed to load strategies:', err);
-        // Don't show error to user since strategies are not currently used in the UI
+        console.error('API key validation failed:', err);
+        setIsValidatingApiKey(false);
+
+        // Check if it's an authentication error
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          setApiKeyError('Invalid API key. Please check your API key and try again.');
+        } else if (err.response?.data?.error?.message) {
+          setApiKeyError(err.response.data.error.message);
+        } else {
+          setApiKeyError('Failed to validate API key. Please check your connection and try again.');
+        }
       }
     }
 
-    loadStrategies();
+    validateApiKey();
   }, [apiClient, defaultStrategy]);
 
   // Load balance when wallet connects
   useEffect(() => {
-    if (wallet.isConnected && wallet.address) {
-      // TODO: Get token address from API based on defaultToken
-      const tokenAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC mainnet
-      staking
-        .getBalance(tokenAddress, wallet.address)
-        .then(setBalance)
-        .catch((err) => console.error('Failed to load balance:', err));
+    async function loadBalance() {
+      if (!wallet.isConnected || !wallet.address) return;
+
+      try {
+        // Get token addresses from API
+        const tokensData = await apiClient.getTokens();
+        const token = tokensData.tokens.find((t: any) => t.symbol === defaultToken);
+
+        if (!token) {
+          console.error('Token not found:', defaultToken);
+          return;
+        }
+
+        console.log('Loading balance for token:', { symbol: token.symbol, address: token.address });
+
+        // Store token address for later use
+        setTokenAddress(token.address);
+
+        const tokenBalance = await staking.getBalance(token.address, wallet.address);
+        setBalance(tokenBalance);
+        console.log('Balance loaded:', tokenBalance);
+      } catch (err) {
+        console.error('Failed to load balance:', err);
+        setBalance('0');
+      }
     }
-  }, [wallet.isConnected, wallet.address, staking, defaultToken]);
+
+    loadBalance();
+  }, [wallet.isConnected, wallet.address, staking, defaultToken, apiClient]);
 
   // Calculate minimum lock days based on APY
   const getMinimumLockDays = (apy: number): number => {
@@ -164,7 +202,14 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
 
   const handleConfirmStake = async () => {
     try {
-      const tokenAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC
+      if (!tokenAddress) {
+        setError('Token address not loaded');
+        setShowConfirmation(false);
+        return;
+      }
+
+      console.log('Staking with token address:', tokenAddress);
+
       const transaction = await staking.stake({
         tokenAddress,
         amount,
@@ -240,8 +285,42 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
           )}
         </div>
 
+        {/* API Key Validation Loading */}
+        {isValidatingApiKey && (
+          <div className="text-center py-8">
+            <div className="w-12 h-12 mx-auto mb-4 border-4 border-vapor-primary border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-vapor-text-secondary">Validating API key...</p>
+          </div>
+        )}
+
+        {/* API Key Error State */}
+        {!isValidatingApiKey && apiKeyError && (
+          <div className="text-center py-8">
+            <svg
+              className="w-16 h-16 mx-auto mb-4 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <h3 className="text-lg font-semibold text-vapor-text mb-2">API Key Error</h3>
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg max-w-md mx-auto">
+              <p className="text-sm text-red-600">{apiKeyError}</p>
+            </div>
+            <p className="text-xs text-vapor-text-secondary">
+              Please contact the widget provider to get a valid API key.
+            </p>
+          </div>
+        )}
+
         {/* Wallet Not Connected State */}
-        {!wallet.isConnected && (
+        {!isValidatingApiKey && !apiKeyError && !wallet.isConnected && (
           <div className="text-center py-8">
             <svg
               className="w-16 h-16 mx-auto mb-4 text-vapor-text-secondary"
@@ -259,14 +338,23 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
             <p className="text-vapor-text-secondary mb-4">
               Connect your wallet to start staking
             </p>
-            <button onClick={wallet.connect} className="vapor-button vapor-button-primary">
-              Connect Wallet
+            {wallet.error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{wallet.error}</p>
+              </div>
+            )}
+            <button
+              onClick={wallet.connect}
+              disabled={wallet.isConnecting}
+              className="vapor-button vapor-button-primary"
+            >
+              {wallet.isConnecting ? 'Connecting...' : 'Connect Wallet'}
             </button>
           </div>
         )}
 
         {/* Staking Form */}
-        {wallet.isConnected && (
+        {!isValidatingApiKey && !apiKeyError && wallet.isConnected && (
           <div className="space-y-6">
             {/* Amount Input */}
             <div>

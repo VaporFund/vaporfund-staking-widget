@@ -19,7 +19,7 @@ class ApiClient {
       timeout: TIMEOUTS.API_REQUEST,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
+        'X-Widget-API-Key': apiKey,
       },
     });
 
@@ -111,7 +111,15 @@ class ApiClient {
    */
   updateApiKey(newApiKey: string): void {
     this.apiKey = newApiKey;
-    this.client.defaults.headers.Authorization = `Bearer ${newApiKey}`;
+    this.client.defaults.headers['X-Widget-API-Key'] = newApiKey;
+  }
+
+  /**
+   * Health check
+   */
+  async healthCheck(): Promise<any> {
+    const response = await this.client.get(API_ENDPOINTS.HEALTH);
+    return response.data;
   }
 }
 

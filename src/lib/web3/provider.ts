@@ -2,6 +2,54 @@ import { ethers } from 'ethers';
 import { SUPPORTED_NETWORKS } from '@/constants';
 
 /**
+ * Wait for window.ethereum to be available
+ * MetaMask and other extensions inject ethereum object asynchronously
+ */
+async function waitForEthereum(timeout: number = 3000): Promise<any> {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') {
+      reject(new Error('Not in browser environment'));
+      return;
+    }
+
+    // Check if already available
+    if (window.ethereum) {
+      console.log('[VaporWidget] window.ethereum already available');
+      resolve(window.ethereum);
+      return;
+    }
+
+    console.log('[VaporWidget] Waiting for window.ethereum...');
+
+    let attempts = 0;
+    const maxAttempts = timeout / 100;
+
+    const interval = setInterval(() => {
+      attempts++;
+
+      if (window.ethereum) {
+        console.log('[VaporWidget] window.ethereum detected after', attempts * 100, 'ms');
+        clearInterval(interval);
+        resolve(window.ethereum);
+      } else if (attempts >= maxAttempts) {
+        console.error('[VaporWidget] window.ethereum not found after', timeout, 'ms');
+        clearInterval(interval);
+        reject(new Error('No Web3 wallet detected'));
+      }
+    }, 100);
+
+    // Also listen for ethereum#initialized event (EIP-1193)
+    window.addEventListener('ethereum#initialized', () => {
+      console.log('[VaporWidget] ethereum#initialized event fired');
+      if (window.ethereum) {
+        clearInterval(interval);
+        resolve(window.ethereum);
+      }
+    }, { once: true });
+  });
+}
+
+/**
  * Get Web3 provider from window.ethereum
  */
 export function getWeb3Provider(): ethers.BrowserProvider | null {
@@ -9,6 +57,15 @@ export function getWeb3Provider(): ethers.BrowserProvider | null {
     return new ethers.BrowserProvider(window.ethereum);
   }
   return null;
+}
+
+/**
+ * Get Web3 provider with retry logic
+ * Waits for wallet extension to be ready
+ */
+export async function getWeb3ProviderAsync(): Promise<ethers.BrowserProvider> {
+  const ethereum = await waitForEthereum();
+  return new ethers.BrowserProvider(ethereum);
 }
 
 /**
