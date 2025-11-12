@@ -51,7 +51,7 @@ export default function StakingPage() {
         </p>
 
         <VaporStakingWidget
-          // Get your API key from: https://partner.vaporfund.com/signup
+          // Get your API key from: https://dashboard.vaporfund.com/signup
           // Format: vf_test_xxxxx (testnet) or vf_live_xxxxx (mainnet)
           apiKey={process.env.NEXT_PUBLIC_VAPOR_API_KEY || 'vf_test_xxxxx'}
 

@@ -116,3 +116,5 @@ pnpm-lock.yaml
 # Documentation build
 docs/.vitepress/dist
 docs/.vitepress/cache
+
+CLAUDE.md

@@ -26,8 +26,8 @@ function App() {
     }}>
       <div style={{ maxWidth: '500px', width: '100%' }}>
         <VaporStakingWidget
-          apiKey={import.meta.env.VITE_WIDGET_API_KEY || "vf_test_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabq"}
-          referralCode="dev_test"
+          apiKey={(import.meta as any).env?.VITE_WIDGET_API_KEY || "vf_test_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabq"}
+          referralCode={(import.meta as any).env?.VITE_VAPOR_REFERRAL_CODE || "dev_test"}
           theme="auto"
           defaultToken="USDC"
           network="sepolia"

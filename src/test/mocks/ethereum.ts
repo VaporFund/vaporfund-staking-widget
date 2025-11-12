@@ -1,6 +1,6 @@
 // Mock Ethereum provider for testing
 export const mockEthereum = {
-  request: async ({ method, params }: { method: string; params?: any[] }) => {
+  request: async ({ method }: { method: string; params?: any[] }) => {
     switch (method) {
       case 'eth_requestAccounts':
         return ['0x1234567890123456789012345678901234567890'];
@@ -16,10 +16,10 @@ export const mockEthereum = {
         throw new Error(`Unsupported method: ${method}`);
     }
   },
-  on: (event: string, handler: Function) => {
+  on: () => {
     // Store event handlers if needed
   },
-  removeListener: (event: string, handler: Function) => {
+  removeListener: () => {
     // Remove event handlers if needed
   },
   isMetaMask: true,

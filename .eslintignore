@@ -1,0 +1,16 @@
+# Build output
+dist
+dist-cdn
+
+# Dependencies
+node_modules
+
+# Generated types
+*.d.ts
+
+# Coverage
+coverage
+
+# Cache
+.vite
+.vitest

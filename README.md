@@ -149,25 +149,31 @@ VaporWidget.init({
 
 ## Installation
 
-### Yarn (Recommended)
+### For End Users (Using the Widget)
+
+Install via your preferred package manager:
 
 ```bash
+# Yarn
 yarn add @vaporfund/staking-widget
-```
 
-### NPM
-
-```bash
+# NPM
 npm install @vaporfund/staking-widget
-```
 
-### PNPM
-
-```bash
+# PNPM
 pnpm add @vaporfund/staking-widget
 ```
 
-> **Note:** This project uses Yarn as the default package manager for development.
+### For Contributors (Developing the Widget)
+
+> **Important:** This project **ONLY** uses Yarn for development. npm and pnpm are blocked by preinstall scripts.
+
+```bash
+# Clone and install (Yarn required)
+git clone https://github.com/vaporfund/vaporfund-staking-platform.git
+cd src/widget
+yarn install  # ✅ Only this works for development
+```
 
 ### CDN
 
@@ -429,17 +435,18 @@ interface WidgetError {
 
 ## Examples
 
-- [Live Demo](https://demo.vaporfund.com/widget)
-- [CodeSandbox - React](https://codesandbox.io/s/vaporfund-widget-react-xxxxx)
-- [CodePen - Vanilla JS](https://codepen.io/vaporfund/pen/xxxxx)
-- [GitHub - Next.js Example](./examples/nextjs)
-- [GitHub - WordPress Plugin](./examples/wordpress)
+- [GitHub - Next.js Example](./examples/nextjs) - See local `examples/` directory
+- [GitHub - Vanilla JS Example](./examples/vanilla-js) - See local `examples/` directory
+- [GitHub - React Example](./examples/react) - See local `examples/` directory
+- Live Demo - Coming soon
+- CodeSandbox - Coming soon
+- CodePen - Coming soon
 
 ## Security
 
 ### Smart Contracts
 
-- **Audited by:** [Audit Firm Name]
+- **Audit Status:** Security audit pending
 - **Mainnet:** [`0x089fa7705f6dea9ccc70c912029a0a442b2ced71`](https://etherscan.io/address/0x089fa7705f6dea9ccc70c912029a0a442b2ced71)
 - **Sepolia:** [`0x508e7698c9fE9214b2aaF3Da5149849CbCBeE009`](https://sepolia.etherscan.io/address/0x508e7698c9fE9214b2aaF3Da5149849CbCBeE009)
 
@@ -447,6 +454,7 @@ interface WidgetError {
 
 - ✅ No private keys stored or transmitted
 - ✅ All transactions require user wallet approval
+- ✅ API key validation with domain whitelisting
 - ✅ HTTPS-only in production
 - ✅ Input validation & sanitization
 - ✅ Rate limiting & DDoS protection
@@ -470,12 +478,14 @@ Email: security@vaporfund.com
 **Bundle Size:** ~45KB (gzipped) - target
 **Dependencies:** React 18+, ethers.js v6, RainbowKit, wagmi, TanStack Query
 
-**Current Status:** MVP Development (Week 1 Complete)
+**Current Status:** MVP Development Complete
 - ✅ Project setup and configuration
 - ✅ Component architecture
 - ✅ Hooks and utilities
-- 🔄 Backend API integration
-- ⏳ Testing and deployment
+- ✅ Backend API integration (API key validation, referral tracking)
+- ✅ APY-based staking with dynamic lock periods
+- 🔄 Smart contract testing on testnet
+- ⏳ Production deployment and npm publish
 
 ## Development
 
@@ -503,13 +513,17 @@ Visit http://localhost:5173 to see the widget in action!
 
 ```bash
 yarn dev          # Start dev server (http://localhost:5173)
-yarn build        # Build for production
+yarn build        # Build library for npm (ES + CJS)
+yarn build:cdn    # Build standalone CDN bundle
 yarn preview      # Preview production build
-yarn test         # Run tests
-yarn test:e2e     # Run E2E tests
-yarn lint         # Lint code
-yarn typecheck    # TypeScript checks
-yarn coverage     # Test coverage report
+yarn test         # Run unit tests with Vitest
+yarn test:ui      # Run tests with Vitest UI
+yarn test:e2e     # Run E2E tests with Playwright
+yarn lint         # Lint code with ESLint
+yarn lint:fix     # Auto-fix linting issues
+yarn typecheck    # TypeScript type checking
+yarn format       # Format code with Prettier
+yarn coverage     # Generate test coverage report
 ```
 
 ### Project Structure
@@ -562,11 +576,18 @@ yarn coverage
 ### Building
 
 ```bash
-# Production build
+# Library build (for npm package)
 yarn build
-
 # Output: dist/
-# - vaporfund-widget.min.js
+# - index.mjs (ES module)
+# - index.js (CommonJS)
+# - index.d.ts (TypeScript types)
+# - style.css
+
+# CDN build (for vanilla JavaScript)
+yarn build:cdn
+# Output: dist/cdn/
+# - vaporfund-widget.min.js (standalone bundle)
 # - vaporfund-widget.css
 ```
 
@@ -610,9 +631,10 @@ chore(widget): maintenance tasks
 - [x] Strategy selection UI
 - [x] APY-based staking with dynamic lock periods
 - [x] API key validation system
-- [ ] Backend API integration (in progress)
+- [x] Backend API integration (complete)
+- [x] CDN build for vanilla JavaScript integration
 - [ ] Smart contract testing on testnet
-- [ ] Production deployment
+- [ ] Production deployment and npm publish
 
 ### Phase 2 - Q1 2026
 - [ ] Multi-token support (USDT, DAI, ETH)
@@ -630,6 +652,7 @@ chore(widget): maintenance tasks
 
 - **[Integration Guide](./INTEGRATION_GUIDE.md)** - Complete guide for widget integration ⭐
 - **[CDN Usage Guide](./CDN_USAGE.md)** - Guide for using widget via CDN (vanilla JS) 🎯
+- **[CLAUDE.md](./CLAUDE.md)** - Developer guide for AI assistants and contributors
 - **[Testing Guide](./TESTING_GUIDE.md)** - Comprehensive testing guide
 - **[Test Scenarios](./TEST_SCENARIOS.md)** - Quick test reference
 - **[Setup Guide](./SETUP.md)** - Developer setup and quick start
@@ -681,7 +704,7 @@ See full [FAQ →](https://docs.vaporfund.com/widget/faq)
 
 ---
 
-**Ready to integrate?** [Get API Key →](https://partner.vaporfund.com/signup)
+**Ready to integrate?** [Get API Key →](https://dashboard.vaporfund.com/signup)
 
 **Questions?** [Contact Us →](mailto:partners@vaporfund.com)
 

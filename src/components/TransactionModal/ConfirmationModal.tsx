@@ -1,4 +1,3 @@
-import React from 'react';
 import { Strategy } from '@/types';
 import { formatUSD, formatPercentage } from '@/lib/utils/formatting';
 

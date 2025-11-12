@@ -61,21 +61,52 @@ export async function isTokenWhitelisted(
 }
 
 /**
+ * Verify provider is connected to expected network
+ */
+async function verifyNetwork(
+  provider: ethers.Provider,
+  expectedNetwork: 'mainnet' | 'sepolia'
+): Promise<void> {
+  const network = await provider.getNetwork();
+  const actualChainId = Number(network.chainId);
+  const expectedChainId = expectedNetwork === 'mainnet' ? 1 : 11155111;
+
+  if (actualChainId !== expectedChainId) {
+    const actualNetworkName = actualChainId === 1 ? 'Mainnet' :
+                              actualChainId === 11155111 ? 'Sepolia' :
+                              `Chain ID ${actualChainId}`;
+    const expectedNetworkName = expectedNetwork === 'mainnet' ? 'Mainnet' : 'Sepolia';
+
+    throw new Error(
+      `Wrong network: Connected to ${actualNetworkName}, but expected ${expectedNetworkName}. ` +
+      `Please switch your wallet to ${expectedNetworkName}.`
+    );
+  }
+}
+
+/**
  * Get token balance
  */
 export async function getTokenBalance(
   tokenAddress: string,
   userAddress: string,
-  provider: ethers.Provider
+  provider: ethers.Provider,
+  expectedNetwork: 'mainnet' | 'sepolia' = 'sepolia'
 ): Promise<string> {
-  console.log('Getting token balance:', { tokenAddress, userAddress });
+  console.log('Getting token balance:', { tokenAddress, userAddress, expectedNetwork });
+
+  // Verify we're on the correct network first
+  await verifyNetwork(provider, expectedNetwork);
 
   // Check if contract exists at this address
   const code = await provider.getCode(tokenAddress);
   if (code === '0x') {
     // Contract not deployed at this address
-    console.error(`❌ No contract found at ${tokenAddress}`);
-    throw new Error(`Token contract not found at ${tokenAddress}. Please check the contract address.`);
+    console.error(`❌ No contract found at ${tokenAddress} on ${expectedNetwork}`);
+    throw new Error(
+      `Token contract not found at ${tokenAddress} on ${expectedNetwork}. ` +
+      `Please verify: 1) You're connected to ${expectedNetwork}, 2) The contract address is correct.`
+    );
   }
 
   const contract = getTokenContract(tokenAddress, provider);
@@ -100,8 +131,12 @@ export async function getTokenAllowance(
   tokenAddress: string,
   userAddress: string,
   spenderAddress: string,
-  provider: ethers.Provider
+  provider: ethers.Provider,
+  expectedNetwork: 'mainnet' | 'sepolia' = 'sepolia'
 ): Promise<string> {
+  // Verify we're on the correct network first
+  await verifyNetwork(provider, expectedNetwork);
+
   // Check if contract exists at this address
   const code = await provider.getCode(tokenAddress);
   if (code === '0x') {

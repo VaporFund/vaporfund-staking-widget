@@ -14,7 +14,7 @@ interface UseWalletReturn extends WalletState {
 }
 
 export function useWallet(options: UseWalletOptions = {}): UseWalletReturn {
-  const { network = 'mainnet', autoConnect = false } = options;
+  const { autoConnect = false } = options;
 
   const [state, setState] = useState<WalletState>({
     address: null,
@@ -67,17 +67,13 @@ export function useWallet(options: UseWalletOptions = {}): UseWalletReturn {
       console.error('[VaporWidget] Wallet connection failed:', error);
 
       let errorMessage = 'Failed to connect wallet';
-      let errorCode = ErrorCode.UNKNOWN_ERROR;
 
       if (error.code === ErrorCode.WALLET_NOT_CONNECTED || error.message?.includes('No Web3 wallet')) {
         errorMessage = 'No Web3 wallet detected. Please install MetaMask or another Web3 wallet.';
-        errorCode = ErrorCode.WALLET_NOT_CONNECTED;
       } else if (error.code === 4001) {
         errorMessage = 'Connection request rejected by user';
-        errorCode = 'USER_REJECTED';
       } else if (error.message?.includes('User rejected')) {
         errorMessage = 'Connection request rejected by user';
-        errorCode = 'USER_REJECTED';
       } else if (error.message) {
         errorMessage = error.message;
       }

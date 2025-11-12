@@ -1,9 +1,8 @@
 import { useState, useCallback } from 'react';
-import { ethers } from 'ethers';
 import { Transaction, ErrorCode, WidgetError } from '@/types';
 import { getWeb3Provider } from '@/lib/web3/provider';
-import { getStakingContract, getTokenContract, getTokenBalance, getTokenAllowance, approveToken, stakeTokens } from '@/lib/web3/contracts';
-import { CONTRACT_ADDRESSES, STAKING_CONFIG } from '@/constants';
+import { getTokenBalance, getTokenAllowance, approveToken, stakeTokens, getTokenContract } from '@/lib/web3/contracts';
+import { CONTRACT_ADDRESSES } from '@/constants';
 import { validateStakeAmount } from '@/lib/utils/validation';
 import ApiClient from '@/lib/api/client';
 
@@ -49,7 +48,7 @@ export function useStaking(options: UseStakingOptions): UseStakingReturn {
           } as WidgetError;
         }
 
-        return await getTokenBalance(tokenAddress, userAddress, provider);
+        return await getTokenBalance(tokenAddress, userAddress, provider, network);
       } catch (error: any) {
         const widgetError: WidgetError = {
           code: ErrorCode.CONTRACT_ERROR,
@@ -59,7 +58,7 @@ export function useStaking(options: UseStakingOptions): UseStakingReturn {
         throw widgetError;
       }
     },
-    [onError]
+    [network, onError]
   );
 
   // Check if approval is needed
@@ -74,7 +73,8 @@ export function useStaking(options: UseStakingOptions): UseStakingReturn {
           tokenAddress,
           userAddress,
           spenderAddress,
-          provider
+          provider,
+          network
         );
 
         return parseFloat(allowance) < parseFloat(amount);

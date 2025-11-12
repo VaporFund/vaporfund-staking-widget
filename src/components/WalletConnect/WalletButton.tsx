@@ -1,4 +1,3 @@
-import React from 'react';
 import { truncateAddress } from '@/lib/utils/formatting';
 
 interface WalletButtonProps {

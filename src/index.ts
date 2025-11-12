@@ -38,7 +38,7 @@ declare global {
 // Initialize vanilla JS API
 if (typeof window !== 'undefined') {
   window.VaporWidget = {
-    init: (config) => {
+    init: () => {
       // This would be used for vanilla JS integration via CDN
       console.warn('VaporWidget.init() is for CDN usage. Use React component directly for npm.');
     },

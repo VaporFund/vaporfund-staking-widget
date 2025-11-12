@@ -1,4 +1,3 @@
-import React from 'react';
 import { Transaction } from '@/types';
 import { formatUSD, formatTxHash, formatDate } from '@/lib/utils/formatting';
 import { SUPPORTED_NETWORKS } from '@/constants';

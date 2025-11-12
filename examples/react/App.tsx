@@ -33,7 +33,7 @@ function App() {
         </p>
 
         <VaporStakingWidget
-          // Get your API key from: https://partner.vaporfund.com/signup
+          // Get your API key from: https://dashboard.vaporfund.com/signup
           apiKey={process.env.REACT_APP_VAPOR_API_KEY || 'vf_test_xxxxx'}
 
           // Optional: Add your referral code to earn revenue share

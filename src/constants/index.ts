@@ -28,14 +28,14 @@ export const TOKEN_ADDRESSES = {
     DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   },
   sepolia: {
-    USDC: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', // Circle's Official USDC on Sepolia
+    USDC: '0x326A6B393DD01D8D3ACA188F2AdCee1cB23B3268',
   },
 } as const;
 
 // API Configuration
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.MODE === 'production'
+  (import.meta as any).env?.VITE_API_BASE_URL ||
+  ((import.meta as any).env?.MODE === 'production'
     ? 'https://staking-api.vaporfund.com'
     : 'http://localhost:3001');
 
@@ -44,8 +44,7 @@ export const API_ENDPOINTS = {
   STRATEGIES: '/api/v1/widget/strategies',
   TOKENS: '/api/v1/widget/tokens',
   PREPARE_TRANSACTION: '/api/v1/widget/prepare-transaction',
-  TRACK_TRANSACTION: '/api/v1/widget/track-transaction',
-  TRACK_REFERRAL: '/api/v1/widget/track-referral',
+  TRACK_TRANSACTION: '/api/v1/widget/track-transaction', // Also handles referral tracking
 } as const;
 
 // Staking Configuration

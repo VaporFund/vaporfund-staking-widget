@@ -92,11 +92,11 @@ class ApiClient {
   }
 
   /**
-   * Track a referral conversion
+   * Track a referral conversion (uses track-transaction endpoint)
    */
   async trackReferral(data: ReferralTrackingRequest): Promise<void> {
     const response = await this.client.post<ApiResponse<void>>(
-      API_ENDPOINTS.TRACK_REFERRAL,
+      API_ENDPOINTS.TRACK_TRANSACTION,
       data
     );
 
@@ -112,6 +112,13 @@ class ApiClient {
   updateApiKey(newApiKey: string): void {
     this.apiKey = newApiKey;
     this.client.defaults.headers['X-Widget-API-Key'] = newApiKey;
+  }
+
+  /**
+   * Get current API key
+   */
+  getApiKey(): string {
+    return this.apiKey;
   }
 
   /**

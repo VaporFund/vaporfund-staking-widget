@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { VaporWidgetConfig, Strategy, Transaction } from '@/types';
 import { useWallet } from '@/hooks/useWallet';
 import { useStaking } from '@/hooks/useStaking';
 import { useTheme } from '@/hooks/useTheme';
 import { WalletButton } from './WalletConnect/WalletButton';
-import { TokenInput } from './StakingForm/TokenInput';
-import { StrategySelector } from './StakingForm/StrategySelector';
 import { ConfirmationModal } from './TransactionModal/ConfirmationModal';
 import { StatusModal } from './TransactionModal/StatusModal';
 import ApiClient from '@/lib/api/client';
@@ -41,7 +39,7 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
   const [error, setError] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [completedTransaction, setCompletedTransaction] = useState<Transaction | null>(null);
-  const [estimatedGas, setEstimatedGas] = useState('0.001');
+  const [estimatedGas] = useState('0.001');
   const [isAboutExpanded, setIsAboutExpanded] = useState(true);
   const [apiKeyError, setApiKeyError] = useState<string | null>(null);
   const [isValidatingApiKey, setIsValidatingApiKey] = useState(true);
@@ -251,7 +249,7 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
             <h2 className="text-lg font-semibold text-vapor-text">About Vapor Staking</h2>
             <div className="flex items-center gap-2">
               <a
-                href="https://staking.vaporfund.com"
+                href={`https://staking.vaporfund.com${referralCode ? `?ref=${referralCode}` : ''}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-vapor-primary hover:underline font-medium"
@@ -279,7 +277,7 @@ export function VaporStakingWidget(config: VaporWidgetConfig) {
           {isAboutExpanded && (
             <div className="px-4 pb-4">
               <p className="text-sm text-vapor-text-secondary leading-relaxed">
-                Stake your tokens securely with VaporFund's decentralized platform. All deposits are automatically routed to a multi-signature wallet, ensuring maximum security for your assets. Choose from multiple strategies to optimize your staking rewards.
+                Stake your tokens securely with VaporFund&apos;s decentralized platform. All deposits are automatically routed to a multi-signature wallet, ensuring maximum security for your assets. Choose from multiple strategies to optimize your staking rewards.
               </p>
             </div>
           )}
