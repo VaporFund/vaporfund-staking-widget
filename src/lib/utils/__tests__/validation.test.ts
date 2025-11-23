@@ -68,17 +68,24 @@ describe('Validation Utils', () => {
 
   describe('isValidApiKey', () => {
     it('should validate live API key', () => {
-      expect(isValidApiKey('pk_live_12345678901234567890123456789012')).toBe(true);
+      // Format: vf_live_<40 base64url chars>
+      expect(isValidApiKey('vf_live_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabq')).toBe(true);
+      expect(isValidApiKey('vf_live_AbCdEf123456789012345678901234567890')).toBe(true);
     });
 
     it('should validate test API key', () => {
-      expect(isValidApiKey('pk_test_12345678901234567890123456789012')).toBe(true);
+      // Format: vf_test_<40 base64url chars>
+      expect(isValidApiKey('vf_test_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabq')).toBe(true);
+      expect(isValidApiKey('vf_test_AbCdEf123456789012345678901234567890')).toBe(true);
     });
 
     it('should reject invalid format', () => {
       expect(isValidApiKey('invalid_key')).toBe(false);
-      expect(isValidApiKey('pk_live_short')).toBe(false);
-      expect(isValidApiKey('pk_prod_12345678901234567890123456789012')).toBe(false);
+      expect(isValidApiKey('vf_live_short')).toBe(false); // Too short
+      expect(isValidApiKey('vf_test_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnabqX')).toBe(false); // Too long (41 chars)
+      expect(isValidApiKey('pk_live_12345678901234567890123456789012')).toBe(false); // Wrong prefix
+      expect(isValidApiKey('vf_prod_12345678901234567890123456789012')).toBe(false); // Wrong environment
+      expect(isValidApiKey('vf_live_9U15TPLnRHZz-TRpNi8guy3RzeH6xJp0RdQhnab!')).toBe(false); // Invalid character
     });
   });
 

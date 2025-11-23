@@ -37,7 +37,7 @@ export const API_BASE_URL =
   (import.meta as any).env?.VITE_API_BASE_URL ||
   ((import.meta as any).env?.MODE === 'production'
     ? 'https://staking-api.vaporfund.com'
-    : 'http://localhost:3001');
+    : 'http://localhost:3701');
 
 export const API_ENDPOINTS = {
   HEALTH: '/api/v1/widget/health',

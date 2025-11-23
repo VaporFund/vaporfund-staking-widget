@@ -58,9 +58,12 @@ export function isValidAddress(address: string): boolean {
 
 /**
  * Validates API key format
+ * Format: vf_live_... or vf_test_... followed by 40 base64url characters
  */
 export function isValidApiKey(apiKey: string): boolean {
-  return /^pk_(live|test)_[a-zA-Z0-9]{32}$/.test(apiKey);
+  // Backend generates keys as: vf_live_<40 base64url chars> or vf_test_<40 base64url chars>
+  // Base64url characters: A-Z, a-z, 0-9, -, _
+  return /^vf_(live|test)_[A-Za-z0-9_-]{40}$/.test(apiKey);
 }
 
 /**
