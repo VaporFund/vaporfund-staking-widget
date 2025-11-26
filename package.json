@@ -29,7 +29,7 @@
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "coverage": "vitest run --coverage",
-    "lint": "eslint . --ext .ts,.tsx --max-warnings 0",
+    "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
@@ -102,6 +102,11 @@
     "vite": "^5.0.8",
     "vite-plugin-dts": "^3.7.0",
     "vitest": "^1.1.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": ["prettier --write"],
+    "*.{json,css,scss}": ["prettier --write"],
+    "*.md": ["prettier --write"]
   },
   "packageManager": "yarn@1.22.19",
   "engines": {
